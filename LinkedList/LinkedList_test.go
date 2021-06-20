@@ -1,4 +1,4 @@
-package linkedList
+package LinkedList
 
 import (
 	"testing"
@@ -8,7 +8,8 @@ import (
 )
 
 const listLen = 5
-var indexList = [...]int {listLen - 1, 2, 0}
+
+var indexList = [...]int{listLen - 1, 2, 0}
 
 func TestAdder(t *testing.T) {
 	RegisterFailHandler(Fail)
@@ -47,7 +48,7 @@ var _ = Describe("Linked List", func() {
 			var list = LinkedList{nil, nil, 0}
 			pushBackToList(&list, listLen)
 			for i := listLen - 1; i <= 0; i-- {
-				Expect(list.popBack()).To(Equal(i))
+				Expect(list.PopBack()).To(Equal(i))
 				Expect(list.len).To(Equal(i + 1))
 			}
 		})
@@ -59,7 +60,7 @@ var _ = Describe("Linked List", func() {
 			var list = LinkedList{nil, nil, 0}
 			pushBackToList(&list, listLen)
 			for i := 0; i < listLen; i++ {
-				Expect(list.popFront()).To(Equal(i))
+				Expect(list.PopFront()).To(Equal(i))
 				Expect(list.len).To(Equal(listLen - i - 1))
 			}
 		})
@@ -71,7 +72,7 @@ var _ = Describe("Linked List", func() {
 			var list = LinkedList{nil, nil, 0}
 			pushBackToList(&list, listLen)
 			for i := 0; i < listLen; i++ {
-				Expect(list.peek(i)).To(Equal(i))
+				Expect(list.Peek(i)).To(Equal(i))
 			}
 		})
 	})
@@ -81,7 +82,7 @@ var _ = Describe("Linked List", func() {
 		It("test the eraseList function", func() {
 			var list = LinkedList{nil, nil, 0}
 			pushBackToList(&list, listLen)
-			err := list.eraseIndexList(indexList[0:3])
+			err := list.EraseIndexList(indexList[0:3])
 			Expect(err).To(BeNil())
 			Expect(list.len).To(Equal(2))
 			cur := list.head
@@ -97,20 +98,20 @@ var _ = Describe("Linked List", func() {
 	Describe("TestError", func() {
 		It("asserts that the linked list returns error for illegal input", func() {
 			var list = LinkedList{nil, nil, 0}
-			_, err := list.popBack()
+			_, err := list.PopBack()
 			Expect(err).NotTo(BeNil())
-			_, err = list.popFront()
+			_, err = list.PopFront()
 			Expect(err).NotTo(BeNil())
-			_, err = list.peek(-1)
+			_, err = list.Peek(-1)
 			Expect(err).NotTo(BeNil())
 			pushBackToList(&list, listLen)
-			_, err = list.peek(listLen)
+			_, err = list.Peek(listLen)
 			Expect(err).NotTo(BeNil())
-			err = list.eraseIndexList([]int{-1})
+			err = list.EraseIndexList([]int{-1})
 			Expect(err).NotTo(BeNil())
-			err = list.eraseIndexList([]int{0, 0})
+			err = list.EraseIndexList([]int{0, 0})
 			Expect(err).NotTo(BeNil())
-			err = list.eraseIndexList([]int{listLen})
+			err = list.EraseIndexList([]int{listLen})
 			Expect(err).NotTo(BeNil())
 		})
 	})
@@ -118,7 +119,7 @@ var _ = Describe("Linked List", func() {
 
 func pushBackToList(list *LinkedList, amountToPush int) {
 	for i := 0; i < amountToPush; i++ {
-		list.pushBack(i)
+		list.PushBack(i)
 		Expect(list.len).To(Equal(i + 1))
 		Expect(list.tail.val).To(Equal(i))
 	}
@@ -126,7 +127,7 @@ func pushBackToList(list *LinkedList, amountToPush int) {
 
 func pushFrontToList(list *LinkedList, amountToPush int) {
 	for i := 0; i < amountToPush; i++ {
-		list.pushFront(i)
+		list.PushFront(i)
 		Expect(list.len).To(Equal(i + 1))
 		Expect(list.head.val).To(Equal(i))
 	}
