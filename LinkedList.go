@@ -6,20 +6,25 @@ import (
 	"sort"
 )
 
+
 type LinkedList struct {
+	// holds the length, tail and head for simple pop push and to be able to validate input quickly
 	head *Node
 	tail *Node
 	len int
 }
 
 type Node struct {
+	// val is interface in order to hold every type of value, next and prev are held to keep a doubly linked list
 	val interface{}
 	next *Node
 	prev *Node
 }
 
-func (l *LinkedList) push(value interface{}) *Node {
+// push to the front of the tail of the list
+func (l *LinkedList) pushBack(value interface{}) *Node {
 	var newNode = Node{value, nil, nil}
+	// if head is nil then this list is empty
 	if l.head == nil {
 		l.head = &newNode
 	} else {
@@ -31,7 +36,23 @@ func (l *LinkedList) push(value interface{}) *Node {
 	return &newNode
 }
 
-func (l *LinkedList) pop() (interface{}, error) {
+// push to the back of the head of the list
+func (l *LinkedList) pushFront(value interface{}) *Node {
+	var newNode = Node{value, nil, nil}
+	// if tail is nil then the list is empty
+	if l.tail == nil {
+		l.tail = &newNode
+	} else {
+		l.head.prev = &newNode
+		newNode.next = l.head
+	}
+	l.head = &newNode
+	l.len++
+	return &newNode
+}
+
+// pop the last element
+func (l *LinkedList) popBack() (interface{}, error) {
 	if l.len == 0 {
 		return 0, errors.New("cant pop from an empty list")
 	}
@@ -47,18 +68,38 @@ func (l *LinkedList) pop() (interface{}, error) {
 	return val, nil
 }
 
+// pop the first elemnt
+func (l *LinkedList) popFront() (interface{}, error) {
+	if l.len == 0 {
+		return 0, errors.New("cant pop from an empty list")
+	}
+	l.len--
+	var val = l.head.val
+	if l.len == 0 {
+		l.head = nil
+		l.tail = nil
+	} else {
+		l.head = l.head.next
+		l.head.prev = nil
+	}
+	return val, nil
+}
+
+// this function returns the i'th value, an error is returned for illegal indexes
 func (l *LinkedList) peek(i int) (interface{}, error) {
 	if i < 0 || i >= l.len {
 		return 0, errors.New(fmt.Sprintf("Cant access cell number %d", i))
 	}
 	n := 0
 	var curNode = l.head
+	// progress until you reach the i'th element of the list
 	for ; n < i; n++ {
 		curNode = curNode.next
 	}
 	return curNode.val, nil
 }
 
+// this function receives an index list and removes all the nodes corresponding to these indexes in the linked list
 func (l *LinkedList) eraseIndexList(indexes []int) error {
 	sort.Ints(indexes)
 	cur := l.head
@@ -79,23 +120,20 @@ func (l *LinkedList) eraseIndexList(indexes []int) error {
 		// we dont want to lose our current location so we stop one before
 		tmp := cur
 		cur = cur.next
-		l.eraseNode(tmp)
+		// delete the node
+		if tmp == l.head {
+			l.head = tmp.next
+		}
+		if tmp == l.tail {
+			l.tail = tmp.prev
+		}
+		if tmp.next != nil {
+			tmp.next.prev = tmp.prev
+		}
+		if tmp.prev != nil {
+			tmp.prev.next = tmp.next
+		}
 		l.len--
 	}
 	return nil
-}
-
-func (l *LinkedList) eraseNode(node *Node) {
-	if node == l.head {
-		l.head = node.next
-	}
-	if node == l.tail {
-		l.tail = node.prev
-	}
-	if node.next != nil {
-		node.next.prev = node.prev
-	}
-	if node.prev != nil {
-		node.prev.next = node.next
-	}
 }
