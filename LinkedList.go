@@ -167,7 +167,7 @@ func (l *LinkedList) EraseIndexList(indexes []int) error {
 	return nil
 }
 
-func (l *LinkedList) Len() int { return l.len }
+//func (l *LinkedList) Len() int { return l.len }
 
 func (l *LinkedList) Head() *Node { return l.head }
 
