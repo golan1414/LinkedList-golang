@@ -1,3 +1,8 @@
-module github.com/golan1414/LinkedList-golang
+module github.com/golanshabi/LinkedList-golang
 
 go 1.16
+
+require (
+	github.com/onsi/ginkgo v1.16.4
+	github.com/onsi/gomega v1.13.0
+)
