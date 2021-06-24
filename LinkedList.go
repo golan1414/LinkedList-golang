@@ -171,6 +171,8 @@ func (l *LinkedList) Len() int { return l.len }
 
 func (l *LinkedList) Head() *Node { return l.head }
 
+func (l *LinkedList) Tail() *Node { return l.tail }
+
 func (l *LinkedList) eraseNode(tmp *Node) {
 	if tmp == l.head {
 		l.head = tmp.next
