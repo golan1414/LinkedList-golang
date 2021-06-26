@@ -31,6 +31,7 @@ func (n *Node) GetNext() *Node {
 	if n.next != n.list.root {
 		return n.next
 	}
+
 	return nil
 }
 
@@ -39,6 +40,7 @@ func (n *Node) GetPrev() *Node {
 	if n.prev != n.list.root {
 		return n.prev
 	}
+
 	return nil
 }
 
@@ -49,28 +51,34 @@ func (n *Node) GetVal() interface{} {
 
 // NewLinkedList returns a new LinkedList instance.
 func NewLinkedList() LinkedList {
-	l := LinkedList{&Node{nil, nil, nil, nil}, 0}
+	root := &Node{nil, nil, nil, nil}
+	root.next = root
+	root.prev = root
+	l := LinkedList{root, 0}
 	l.root.list = &l
+
 	return l
 }
 
 func (l *LinkedList) insertAt(at, toInsert *Node) *Node {
 	l.len++
+
 	toInsert.next = at.next
 	at.next = toInsert
 	toInsert.prev = at
 	toInsert.next.prev = toInsert
+
 	return toInsert
 }
 
 // PushBack push to the front of the tail of the list.
 func (l *LinkedList) PushBack(value interface{}) *Node {
-	return l.insertAt(l.root.next, &Node{value, nil, nil, l})
+	return l.insertAt(l.root.prev, &Node{value, nil, nil, l})
 }
 
 // PushFront push to the back of the head of the list.
 func (l *LinkedList) PushFront(value interface{}) *Node {
-	return l.insertAt(l.root.prev, &Node{value, nil, nil, l})
+	return l.insertAt(l.root, &Node{value, nil, nil, l})
 }
 
 // PopBack pop the last element.
@@ -161,7 +169,6 @@ func (l *LinkedList) Tail() *Node { return l.root.prev }
 func (l *LinkedList) eraseNode(tmp *Node) {
 	tmp.next.prev = tmp.prev
 	tmp.prev.next = tmp.next
-	tmp = nil
 
 	l.len--
 }
