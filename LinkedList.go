@@ -14,8 +14,7 @@ var (
 
 type LinkedList struct {
 	// holds the length, tail and head for simple pop push and to be able to validate input quickly.
-	head *Node
-	tail *Node
+	root *Node
 	len  int
 }
 
@@ -24,16 +23,23 @@ type Node struct {
 	val  interface{}
 	next *Node
 	prev *Node
+	list *LinkedList
 }
 
 // GetNext returns the node's next node.
 func (n *Node) GetNext() *Node {
-	return n.next
+	if n.next != n.list.root {
+		return n.next
+	}
+	return nil
 }
 
 // GetPrev returns the node's previous node.
 func (n *Node) GetPrev() *Node {
-	return n.prev
+	if n.prev != n.list.root {
+		return n.prev
+	}
+	return nil
 }
 
 // GetVal returns the Node's value.
@@ -43,41 +49,28 @@ func (n *Node) GetVal() interface{} {
 
 // NewLinkedList returns a new LinkedList instance.
 func NewLinkedList() LinkedList {
-	return LinkedList{nil, nil, 0}
+	l := LinkedList{&Node{nil, nil, nil, nil}, 0}
+	l.root.list = &l
+	return l
+}
+
+func (l *LinkedList) insertAt(at, toInsert *Node) *Node {
+	l.len++
+	toInsert.next = at.next
+	at.next = toInsert
+	toInsert.prev = at
+	toInsert.next.prev = toInsert
+	return toInsert
 }
 
 // PushBack push to the front of the tail of the list.
 func (l *LinkedList) PushBack(value interface{}) *Node {
-	newNode := Node{value, nil, nil}
-	// if head is nil then this list is empty
-	if l.head == nil {
-		l.head = &newNode
-	} else {
-		l.tail.next = &newNode
-		newNode.prev = l.tail
-	}
-
-	l.tail = &newNode
-	l.len++
-
-	return &newNode
+	return l.insertAt(l.root.next, &Node{value, nil, nil, l})
 }
 
 // PushFront push to the back of the head of the list.
 func (l *LinkedList) PushFront(value interface{}) *Node {
-	newNode := Node{value, nil, nil}
-	// if tail is nil then the list is empty
-	if l.tail == nil {
-		l.tail = &newNode
-	} else {
-		l.head.prev = &newNode
-		newNode.next = l.head
-	}
-
-	l.head = &newNode
-	l.len++
-
-	return &newNode
+	return l.insertAt(l.root.prev, &Node{value, nil, nil, l})
 }
 
 // PopBack pop the last element.
@@ -86,16 +79,9 @@ func (l *LinkedList) PopBack() (interface{}, error) {
 		return 0, errPopEmpty
 	}
 
-	l.len--
-	val := l.tail.val
+	val := l.root.prev.val
 
-	if l.len == 0 {
-		l.head = nil
-		l.tail = nil
-	} else {
-		l.tail = l.tail.prev
-		l.tail.next = nil
-	}
+	l.eraseNode(l.root.prev)
 
 	return val, nil
 }
@@ -106,16 +92,9 @@ func (l *LinkedList) PopFront() (interface{}, error) {
 		return 0, errPopEmpty
 	}
 
-	l.len--
-	val := l.head.val
+	val := l.root.next.val
 
-	if l.len == 0 {
-		l.head = nil
-		l.tail = nil
-	} else {
-		l.head = l.head.next
-		l.head.prev = nil
-	}
+	l.eraseNode(l.root.next)
 
 	return val, nil
 }
@@ -126,10 +105,9 @@ func (l *LinkedList) Peek(i int) (interface{}, error) {
 		return 0, fmt.Errorf("%w: %d", errInvalidCellNum, i)
 	}
 
-	n := 0
-	curNode := l.head
+	curNode := l.root.next
 	// progress until you reach the i'th element of the list
-	for ; n < i; n++ {
+	for n := 0; n < i; n++ {
 		curNode = curNode.next
 	}
 
@@ -141,7 +119,7 @@ func (l *LinkedList) Peek(i int) (interface{}, error) {
 func (l *LinkedList) EraseIndexList(indexes []int) error {
 	sort.Ints(indexes)
 
-	cur := l.head
+	cur := l.root.next
 	// j is the index of the current
 	j := 0
 
@@ -174,28 +152,16 @@ func (l *LinkedList) EraseIndexList(indexes []int) error {
 func (l *LinkedList) Len() int { return l.len }
 
 // Head return the list head.
-func (l *LinkedList) Head() *Node { return l.head }
+func (l *LinkedList) Head() *Node { return l.root.next }
 
 // Tail return the list tail.
-func (l *LinkedList) Tail() *Node { return l.tail }
+func (l *LinkedList) Tail() *Node { return l.root.prev }
 
 // erase a single node from the list.
 func (l *LinkedList) eraseNode(tmp *Node) {
-	if tmp == l.head {
-		l.head = tmp.next
-	}
-
-	if tmp == l.tail {
-		l.tail = tmp.prev
-	}
-
-	if tmp.next != nil {
-		tmp.next.prev = tmp.prev
-	}
-
-	if tmp.prev != nil {
-		tmp.prev.next = tmp.next
-	}
+	tmp.next.prev = tmp.prev
+	tmp.prev.next = tmp.next
+	tmp = nil
 
 	l.len--
 }
